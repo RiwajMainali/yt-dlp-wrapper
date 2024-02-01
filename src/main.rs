@@ -1,51 +1,59 @@
-#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")] // hide console window on Windows in release
+use clap::Parser;
+use std::env;
+use std::process::{Command, Output};
 
-use eframe::egui;
+#[derive(Parser)]
+#[command(
+    name = "MyApp",
+    author = "azazel",
+    version = "1.0",
+    about = "cli-wrapper"
+)]
+struct Cli {
+    #[arg()]
+    text_file: String,
 
-struct showExit{
-    showExits: bool,
+    #[arg(long, short)]
+    description: bool,
+
+    #[arg(long, short)]
+    video: bool,
 }
-fn main() -> Result<(), eframe::Error> {
-    let mut newShowExit = showExit{
-        showExits: false
-    };
-    let options = eframe::NativeOptions {
-        viewport: egui::ViewportBuilder::default().with_inner_size([320.0, 240.0]),
-        ..Default::default()
-    };
+fn shell_cmd(cmd: &str, args: Option<&[&str]>) -> Result<String, std::io::Error> {
+    let res: Output;
 
-    // Our application state:
-    let mut name = "Arthur".to_owned();
-    let mut age = 42;
-
-    eframe::run_simple_native("My egui App", options, move |ctx, frame| {
-        if ctx.input(|i| i.key_down(egui::Key::A)){
-            newShowExit.showExits= true;
+    match args {
+        Some(value) => {
+            res = Command::new(cmd)
+                .args(value)
+                .output()
+                .expect("top error handling");
         }
-        else{
-            newShowExit.showExits= false;
+        None => {
+            res = Command::new(cmd).output().expect("top error handling");
         }
+    }
 
-        egui::CentralPanel::default().show(ctx, |ui| {
-            if  newShowExit.showExits==true{
-
-            ui.heading("You pressed A");
-            }
-            else {
-                ui.heading("Press A");
-            }
-            ui.horizontal(|ui| {
-
-                let name_label = ui.label("Your name: ");
-                ui.text_edit_singleline(&mut name)
-                    .labelled_by(name_label.id);
-            });
-            ui.add(egui::Slider::new(&mut age, 0..=140).text("age"));
-            if ui.button("Click each year").clicked() {
-                age += 1;
-            }
-            ui.label(format!("Hello '{name}', age {age}"));
-        });
-    })
+    if res.status.success() {
+        let stdout = String::from_utf8(res.stdout).unwrap();
+        return Ok(stdout);
+    } else {
+        let stdrror = String::from_utf8(res.stderr).unwrap();
+        return Err(std::io::Error::new(std::io::ErrorKind::Other, stdrror));
+    }
 }
 
+fn main() {
+    let cli = Cli::parse();
+
+    println!(
+        "descritption: {}\n video: {:?}\n fileName:{:?}",
+        cli.description, cli.video, cli.text_file
+    );
+
+    let _home = env::var("HOME").expect("Home dir not found");
+    //let move_cmd= format!("{}/data.txt", home);
+    let res = shell_cmd(&"ll",None );
+    println!("{}", res.unwrap());
+    // let res= Command::new("mv").args([&move_cmd,"./"]).output().expect("top error handling");
+}

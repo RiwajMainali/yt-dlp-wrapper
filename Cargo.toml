@@ -1,10 +1,10 @@
 [package]
-name = "sk"
+name = "yt_dlp_wrapper"
 version = "0.1.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-eframe = "0.25"
-egui = "0.25"
+clap = { version = "4.4.18", features = ["derive", "unstable-doc"] }
+
