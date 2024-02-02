@@ -14,12 +14,24 @@ struct Cli {
     text_file: String,
 
     #[arg(long, short)]
-    description: bool,
+    location: String,
 
+    //defaulted to yes
     #[arg(long, short)]
     video: bool,
+
+    // defaulted to true
+    #[arg(long, short)]
+    description: bool,
+    
+    //defaulted to true
+    #[arg(long, short)]
+    top_comment: bool,
+
+    #[arg(long, short)]
+    thumbnail: bool
 }
-fn shell_cmd(cmd: &str, args: Option<&[&str]>) -> Result<String, std::io::Error> {
+fn _shell_cmd(cmd: &str, args: Option<&[&str]>) -> Result<String, std::io::Error> {
     let res: Output;
 
     match args {
@@ -43,6 +55,10 @@ fn shell_cmd(cmd: &str, args: Option<&[&str]>) -> Result<String, std::io::Error>
     }
 }
 
+fn _parser(_file_name: String){
+    
+}
+
 fn main() {
     let cli = Cli::parse();
 
@@ -52,8 +68,6 @@ fn main() {
     );
 
     let _home = env::var("HOME").expect("Home dir not found");
-    //let move_cmd= format!("{}/data.txt", home);
-    let res = shell_cmd(&"ll",None );
+    let res =_shell_cmd(&"ls",Some(&["-l","-a"]) );
     println!("{}", res.unwrap());
-    // let res= Command::new("mv").args([&move_cmd,"./"]).output().expect("top error handling");
 }
