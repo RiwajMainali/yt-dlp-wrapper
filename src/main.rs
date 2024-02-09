@@ -1,7 +1,7 @@
 use clap::Parser;
 use std::env;
 use std::process::{Command, Output};
-
+mod yt_parser;
 #[derive(Parser)]
 #[command(
     name = "MyApp",
@@ -13,8 +13,8 @@ struct Cli {
     #[arg()]
     text_file: String,
 
-    #[arg(long, short)]
-    location: String,
+    // #[arg(long, short)]
+    // location: String,
 
     //defaulted to yes
     #[arg(long, short)]
@@ -23,15 +23,16 @@ struct Cli {
     // defaulted to true
     #[arg(long, short)]
     description: bool,
-    
+
     //defaulted to true
     #[arg(long, short)]
-    top_comment: bool,
+    comments: bool,
 
     #[arg(long, short)]
-    thumbnail: bool
+    thumbnail: bool,
 }
-fn _shell_cmd(cmd: &str, args: Option<&[&str]>) -> Result<String, std::io::Error> {
+
+fn shell_cmd(cmd: &str, args: Option<&[&str]>) -> Result<String, std::io::Error> {
     let res: Output;
 
     match args {
@@ -55,10 +56,6 @@ fn _shell_cmd(cmd: &str, args: Option<&[&str]>) -> Result<String, std::io::Error
     }
 }
 
-fn _parser(_file_name: String){
-    
-}
-
 fn main() {
     let cli = Cli::parse();
 
@@ -68,6 +65,7 @@ fn main() {
     );
 
     let _home = env::var("HOME").expect("Home dir not found");
-    let res =_shell_cmd(&"ls",Some(&["-l","-a"]) );
+    let res = shell_cmd(&"ls", Some(&["-l", "-a"]));
     println!("{}", res.unwrap());
+    yt_parser::custom_parser(&"data.txt".to_string()).display();
 }
